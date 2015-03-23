@@ -8,7 +8,7 @@ import csv
 rtList = dict()
 
 # rtList gives the sequence of stations for each route (branches and directions)
-with open('C:/Users/Hongmou/Dropbox (MIT)/HubCity_Hack/Data/Bus/StopListForRoute/StopLists.csv', 'rb') as f:
+with open('C:/Users/Hongmou/Dropbox (MIT)/HubCity_Hack/Data/Bus/StopListForRoute/StopLists.csv', 'rb') as f: # subject to change
     rd = csv.reader(f)
     row = rd.next()
     rtId = row.index('CTPS_ROU_1')
@@ -24,3 +24,5 @@ with open('C:/Users/Hongmou/Dropbox (MIT)/HubCity_Hack/Data/Bus/StopListForRoute
                 print str(rt) + ': error'
         else:
             rtList[rt] = [row[frStId], row[toStId]]
+
+# You can add your own output methods here
