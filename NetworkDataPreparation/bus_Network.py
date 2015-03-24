@@ -8,6 +8,11 @@ import numpy as np
 import cPickle as pickle
 from operator import itemgetter
 import re
+
+
+
+
+
 def get_list_of_stop_times(window):
     '''Associated with each trip_ID get the
      ordered list of stop_IDs and the corresponding
@@ -59,6 +64,8 @@ def get_network_dict():
         
     dict_file_ = open(expanduser('~/Dropbox/SCL-MIT-Research/SCL-Projects/hackathon/MBTAHubHacksData/myData/trips_dict.pkl'), 'rb')
     trip_dict = pickle.load(dict_file_)
+    dict_file_.close()
+    
     print len(trip_dict.keys())
     print len(set(trip_dict.keys()))
     
@@ -71,7 +78,6 @@ def get_network_dict():
             stop_2 = temp_list[1][2]
             stop_list.append(stop_1)
             stop_list.append(stop_2)
-#             print stop_1,stop_2
             network_dict[(stop_1,stop_2)] = []
         elif len(temp_list)>2:
             for ind,item in enumerate(temp_list[:-1]):
@@ -80,12 +86,48 @@ def get_network_dict():
                 stop_list.append(stop_1)
                 stop_list.append(stop_2)
                 network_dict[(stop_1,stop_2)] = []
-#                 print stop_1,stop_2
+        else: 
+            print 'hmmm!'
+            
+    for key in trip_dict.keys():
+        temp_list = trip_dict[key]
+        if len(temp_list) == 2:
+            stop_1 = temp_list[0][2]
+            stop_2 = temp_list[1][2]
+            t2_list = temp_list[1][0].split(':')
+#             print 't2_list',t2_list
+            t2 = int(t2_list[0][1:]) * 3600 + int(t2_list[1]) * 60 + int(t2_list[2][:-1])
+            t1_list = temp_list[0][1].split(':')
+#             print 't1_list',t1_list
+            t1 = int(t1_list[0][1:]) * 3600 + int(t1_list[1]) * 60 + int(t1_list[2][:-1])
+            transfer_time = t2 - t1
+            departure_time = t1
+            network_dict[(stop_1,stop_2)].append((departure_time,transfer_time))
+        elif len(temp_list)>2:
+            for ind,item in enumerate(temp_list[:-1]):
+                stop_1 = item[2]
+                stop_2 = temp_list[ind+1][2]
+                t2_list = temp_list[ind+1][0].split(':')
+#                 print 't2_list',t2_list
+                t2 = int(t2_list[0][1:]) * 3600 + int(t2_list[1]) * 60 + int(t2_list[2][:-1])
+                t1_list = item[1].split(':')
+#                 print 't1_list',t1_list
+                t1 = int(t1_list[0][1:]) * 3600 + int(t1_list[1]) * 60 + int(t1_list[2][:-1])
+                transfer_time = t2 - t1
+                departure_time = t1
+                if (temp_list[ind+1][3] - item[3]) != 1:
+                    print 'Error the sequences are', temp_list[ind+1][3],item[3]
+                network_dict[(stop_1,stop_2)].append((departure_time,transfer_time))
+        else: 
+            print 'hmmm!'
     
-    print len(stop_list)
-    print len(set(stop_list))
-                
+    
+    
+    dict_file_ = open(expanduser('~/Dropbox/SCL-MIT-Research/SCL-Projects/hackathon/MBTAHubHacksData/myData/stop_networks.pkl'), 'wb')
+    pickle.dump(network_dict,dict_file_)
     dict_file_.close()
+    
+    
     return stop_list
     
 def open_hongmou_stop_list():
@@ -96,46 +138,44 @@ def open_hongmou_stop_list():
     stop_list = []
     for line in lines:
         temp_list = line.split(',')
-        print temp_list
         
         stop_list.append(temp_list[2])
     
-    print len(stop_list)
-    print len(set(stop_list))
 
     
     stops_lat_lon_file.close()
     return stop_list
-        
+
+def load_stop_network_dict():
     
+    _file = open(expanduser('~/Dropbox/SCL-MIT-Research/SCL-Projects/hackathon/MBTAHubHacksData/myData/stop_networks.pkl'), 'rb')
+    network_dict = pickle.load(_file) 
+    _file.close()
+    
+    print len(network_dict.keys())
+    time_sorted_network_dict = {}
+    for key in network_dict.keys():
+        time_sorted_network_dict[key] = sorted(network_dict[key],key=itemgetter(0))
+    
+    _file = open(expanduser('~/Dropbox/SCL-MIT-Research/SCL-Projects/hackathon/MBTAHubHacksData/myData/time_sorted_stop_networks.pkl'), 'wb')
+    pickle.dump(time_sorted_network_dict,_file) 
+    _file.close()
+
+def generate_average_and_sigma_transfer_time_networks(time_sorted_network_dict, trials = 10):
+    
+    for h in range(0,24,2):
+        s_cursor_start = 3600*h
+        s_cursor_end = 3600*(h+1)
+    
+        t_array = random.randint(s_cursor_start,s_cursor_end,(len(time_sorted_network_dict.keys()),trials))
+        
+        
+
 if __name__ == '__main__':
 #     get_list_of_stop_times(100000)
-    stop_list_1 = get_network_dict()
-    stop_list_2 = open_hongmou_stop_list()
-    stop_list_A = []
-    stop_list_B = []
-    for item in stop_list_1:
-        temp = re.findall(r'\d+',item)
-        if len(temp)==1:
-#             print temp[0]
-            stop_list_A.append(int(temp[0]))
-        else:
-#             print item,'A'
-            pass
+#     stop_list_1 = get_network_dict()
+#     stop_list_2 = open_hongmou_stop_list()
     
-    print len(set(stop_list_A))        
-    for item in stop_list_2:
-        temp = re.findall(r'\d+',item)
-        if len(temp)==1:
-            stop_list_B.append(int(temp[0]))
-        else:
-            print item, 'B'
-             
-    print len(set(stop_list_A) - set(stop_list_B))
-    print set(stop_list_B) - set(stop_list_A)
-    print set(stop_list_B) - set(stop_list_A)
-#     
-#     
-    
+    load_stop_network_dict()
     
     
