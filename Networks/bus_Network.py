@@ -133,7 +133,7 @@ if __name__ == '__main__':
              
     print len(set(stop_list_A) - set(stop_list_B))
     print set(stop_list_B) - set(stop_list_A)
-    print len(set(stop_list_B) - set(stop_list_A))
+    print set(stop_list_B) - set(stop_list_A)
 #     
 #     
     
