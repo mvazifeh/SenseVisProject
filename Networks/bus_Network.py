@@ -53,5 +53,8 @@ def get_list_of_stop_times(window):
                  
     file_.close()
     
+    
+    
+    
 if __name__ == '__main__':
     get_list_of_stop_times(100000)
