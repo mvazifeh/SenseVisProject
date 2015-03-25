@@ -14,6 +14,8 @@ outputFolder = 'C:/Projects/MassHackathon/stopsForRoutes/'
 # CAUTION: may overwrite the current shapefiles in the output folder
 arcpy.env.overwriteOutput = True
 
+
+routeList = list()
 with open(stopListTable, 'rb') as f:
     rd = csv.reader(f)
     row = rd.next()
@@ -35,3 +37,18 @@ with open(stopListTable, 'rb') as f:
         arcpy.SelectLayerByAttribute_management('routeLayer', 'NEW_SELECTION', 'CTPS_ROU_2 = '+ row[routeId])
         # Export the route to a new shapefile
         arcpy.CopyFeatures_management("routeLayer", outputFolder + 'routeAc' + row[routeId])
+        # Add the route to the list
+        routeList.append(row[routeId])
+
+
+# Split each route with its stops
+toBeMerged = list()
+for rt in routeList:
+    lineFile = outputFolder + 'routeAc' + rt + '.shp'
+    pointFile = outputFolder + 'routePt' + rt + '.shp'
+    outputFile = outputFolder + 'routeSplit/' + 'split' + rt + '.shp'
+    arcpy.SplitLineAtPoint_management(lineFile, pointFile, outputFile, '0.5 Meters')
+    toBeMerged.append(outputFile)
+    
+# Merge all split segment into one shapefile
+arcpy.Merge_management(toBeMerged, outputFolder + 'routeSplit/' + 'splitBusRoutes.shp')
