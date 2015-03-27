@@ -12,4 +12,4 @@ file_  = open('C:/Users/Hongmou/Dropbox (MIT)/HubCity_Hack/Data/Bus/Processed_da
 network_dictionary = pickle.load(file_)
 file_.close()
 
-splitStops = 'C:/users/hongmou/desktop/BUS_SPLIT_STOPS.csv'
+split_stops = 'C:/users/hongmou/desktop/line_segments.csv'
