@@ -42,3 +42,19 @@ for i in unseen:
 print "===========================" + str(len(notBecauseUnused)) + "==========================="
 for i in notBecauseUnused:
     print i
+
+segment_unknown_id = list()
+bus_segment = 'C:/Users/Hongmou/Desktop/bus_segment.csv'
+with open(bus_segment, 'rb') as g:
+    rd = csv.reader(g)
+    row = rd.next()
+    stId1 = row.index('STOP_ID')
+    stId2 = row.index('STOP_ID_1')
+    oid = 0
+    for row in rd:
+        stPair = ('"{}"'.format(row[stId1]), '"{}"'.format(row[stId2]))
+        if stPair in notBecauseUnused:
+            segment_unknown_id.append(int(row[oid]))
+
+print segment_unknown_id 
+            
