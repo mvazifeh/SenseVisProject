@@ -16,5 +16,6 @@ for fc in featureclasses:
     for i in range(len(field_list)):
         if i > 1 and i != 53:
             arcpy.AlterField_management(fc, field_list[i].name, field_names[i])
+    print featureclasses.index(fc)
         
 arcpy.Merge_management(featureclasses, 'mergeSplit')
